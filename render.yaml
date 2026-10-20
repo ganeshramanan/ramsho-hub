@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ramsho-hub
+    runtime: static
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache

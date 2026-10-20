@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ramsho</title>
+<meta name="theme-color" content="#166534">
+<style>
+  :root { --bg:#f6f7f6; --card:#fff; --line:#e5e7e5; --text:#111827; --muted:#6b7280; --brand:#166534; }
+  :root.dark { --bg:#0b0f0c; --card:#141a16; --line:#243028; --text:#f3f4f3; --muted:#9aa5a0; --brand:#22a35a; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); }
+  .wrap { max-width:960px; margin:0 auto; padding:20px 16px 48px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  h1 { margin:0; font-size:22px; }
+  .sub { color:var(--muted); font-size:14px; margin:2px 0 0; }
+  .theme { width:38px; height:38px; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:10px; cursor:pointer; font-size:16px; }
+  .search { width:100%; margin:20px 0 16px; padding:12px 14px; font-size:16px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--text); }
+  .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); }
+  .card { display:flex; flex-direction:column; gap:10px; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; }
+  .top { display:flex; align-items:center; gap:12px; }
+  .badge { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; flex:none; }
+  .name { font-weight:600; font-size:17px; }
+  .tag { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  .desc { color:var(--muted); font-size:14px; flex:1; }
+  .host { font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .open { display:block; text-align:center; text-decoration:none; background:var(--brand); color:#fff; padding:10px; border-radius:10px; font-weight:600; }
+  .empty { display:none; text-align:center; color:var(--muted); padding:32px 0; }
+  footer { margin-top:28px; text-align:center; color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1 id="brand">Ramsho</h1><p class="sub">All products in one place</p></div>
+    <button class="theme" id="theme" aria-label="Switch light or dark">&#9680;</button>
+  </header>
+  <input class="search" id="q" type="search" placeholder="Search products">
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="empty">No product matches.</p>
+  <footer>Tap Open to launch in a new tab</footer>
+</div>
+<script>
+// To add a product, add one line to this list. To rename the hub, change BRAND.
+const BRAND = "Ramsho";
+const PRODUCTS = [
+  { name:"Grambi",   tag:"For businesses", color:"#7c3aed", url:"https://grambi.in",
+    desc:"Social media, content generator, website design, WhatsApp broadcaster, invoice and retention CRM." },
+  { name:"Motobill", tag:"For garages",    color:"#2563eb", url:"https://motobill.in",
+    desc:"Billing and service software for two-wheeler garages. Live with customers." },
+  { name:"Gritbi",   tag:"For students",   color:"#ea580c", url:"https://gritbi-site.onrender.com/",
+    desc:"Site for college students and newcomers." },
+  { name:"Cartbi",   tag:"For shops",      color:"#0891b2", url:"https://shopcart-tu3k.onrender.com/login",
+    desc:"Shop cart ordering app." },
+  { name:"Bot demo", tag:"Demo",           color:"#16a34a", url:"https://salavai-laundry-chatbot-demo-1.onrender.com/",
+    desc:"WhatsApp chatbot demo for Salavai Laundry." },
+  { name:"Illam",    tag:"For homemakers", color:"#166534", url:"https://homemaker-app.onrender.com/",
+    desc:"Groceries, budget, calendar and diary for the home." },
+];
+document.title = BRAND; document.getElementById("brand").textContent = BRAND;
+const grid = document.getElementById("grid"), empty = document.getElementById("empty");
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+function render(list) {
+  grid.innerHTML = list.map((p) => `
+    <div class="card">
+      <div class="top"><div class="badge" style="background:${p.color}">${esc(p.name[0])}</div>
+        <div><div class="name">${esc(p.name)}</div><div class="tag">${esc(p.tag)}</div></div></div>
+      <div class="desc">${esc(p.desc)}</div>
+      <div class="host">${esc(p.url.replace(/^https?:\/\//, "").replace(/\/$/, ""))}</div>
+      <a class="open" href="${esc(p.url)}" target="_blank" rel="noopener">Open</a>
+    </div>`).join("");
+  empty.style.display = list.length ? "none" : "block";
+}
+document.getElementById("q").addEventListener("input", (e) => {
+  const s = e.target.value.trim().toLowerCase();
+  render(PRODUCTS.filter((p) => !s || (p.name + " " + p.tag + " " + p.desc).toLowerCase().includes(s)));
+});
+const root = document.documentElement;
+if (localStorage.getItem("hub-theme") === "dark") root.classList.add("dark");
+document.getElementById("theme").onclick = () => { root.classList.toggle("dark"); localStorage.setItem("hub-theme", root.classList.contains("dark") ? "dark" : "light"); };
+render(PRODUCTS);
+</script>
+</body>
+</html>
