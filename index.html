@@ -86,13 +86,16 @@
 </div>
 
 <script>
-// To add a product, add one line to PRODUCTS. To rename the hub, change BRAND.
+// To add a product, add one line to PRODUCTS (optional `ping`: a backend URL that Wake all should also wake). To rename the hub, change BRAND.
 const BRAND = "Ramsho";
 const PRODUCTS = [
   { name:"Grambi",   tag:"For businesses", c:"#7c3aed", g:"linear-gradient(135deg,#8b5cf6,#6d28d9)", url:"https://grambi.in",
     desc:"Social media, content generator, website design, WhatsApp broadcaster, invoice and retention CRM." },
   { name:"Motobill", tag:"For garages",    c:"#2563eb", g:"linear-gradient(135deg,#3b82f6,#1d4ed8)", url:"https://motobill.in",
     desc:"Billing and service software for two-wheeler garages. Live with customers." },
+  { name:"TileBill", tag:"For tile shops", c:"#0f766e", g:"linear-gradient(135deg,#14b8a6,#0f766e)", url:"https://tilebill-frontend.onrender.com/",
+    ping:"https://tilebill-backend.onrender.com/api/health",
+    desc:"GST billing, quotations and batch-wise stock for tile showrooms. Sq ft to boxes, automatically." },
   { name:"Gritbi",   tag:"For students",   c:"#ea580c", g:"linear-gradient(135deg,#fb923c,#ea580c)", url:"https://gritbi-site.onrender.com/",
     desc:"Site for college students and newcomers." },
   { name:"Cartbi",   tag:"For shops",      c:"#0891b2", g:"linear-gradient(135deg,#22d3ee,#0e7490)", url:"https://shopcart-tu3k.onrender.com/",
@@ -107,7 +110,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;
 const host = (u) => u.replace(/^https?:\/\//, "").replace(/\/$/, "");
 const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 document.title = BRAND; $("brand").textContent = BRAND; $("mark").textContent = BRAND[0];
-$("lead").textContent = PRODUCTS.length + " products, built for businesses, garages, students, shops and homes.";
+$("lead").textContent = PRODUCTS.length + " products, built for businesses, garages, tile showrooms, students, shops and homes.";
 
 let cat = "All", term = "";
 const cats = ["All", ...new Set(PRODUCTS.map((p) => p.tag))];
@@ -139,7 +142,7 @@ async function wake() {
   await Promise.all(PRODUCTS.map(async (p) => {
     mark(p.url, "wait");
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 70000);
-    try { await fetch(p.url, { mode:"no-cors", cache:"no-store", signal:ctl.signal }); mark(p.url, "up"); }
+    try { await Promise.all([p.url, p.ping].filter(Boolean).map((u) => fetch(u, { mode:"no-cors", cache:"no-store", signal:ctl.signal }))); mark(p.url, "up"); }
     catch { mark(p.url, ""); }
     finally { clearTimeout(t); }
   }));
